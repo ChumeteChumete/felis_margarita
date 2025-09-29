@@ -1,0 +1,8 @@
+grpcio
+grpcio-tools
+protobuf
+sentence-transformers
+transformers
+torch
+psycopg2-binary
+pgvector

@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app"]
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+  ml-service:
+    build:
+      context: ./ml_service
+    depends_on:
+      - postgres
+    ports:
+      - "50051:50051" # gRPC
+    environment:
+      - DATABASE_DSN=postgres://app:pass@postgres:5432/appdb?sslmode=disable
+  bot:
+    build:
+      context: .
+      dockerfile: ./cmd/bot/Dockerfile
+    depends_on:
+      - ml-service
+      - postgres
+    env_file: .env
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - GRPC_ADDR=ml-service:50051
+volumes:
+  pgdata:

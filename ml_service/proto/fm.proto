@@ -1,0 +1,40 @@
+syntax = "proto3";
+package qna;
+option go_package = "/proto;proto";
+
+message UploadDocRequest {
+  string user_id = 1;
+  string title = 2;
+  // Если клиент присылает текст — используем text.
+  string text = 3;
+  // Если присылает файл — используем file_bytes.
+  bytes file_bytes = 4;
+  string filename = 5;
+}
+
+message UploadDocResponse {
+  string doc_id = 1;
+  string status = 2;
+}
+
+message QueryRequest {
+  string user_id = 1;
+  string question = 2;
+  int32 top_k = 3; // сколько контекстных чанков вернуть
+}
+
+message Chunk {
+  string chunk_id = 1;
+  string text = 2;
+  float score = 3;
+}
+
+message QueryResponse {
+  string answer = 1;           // опционально
+  repeated Chunk contexts = 2; // top-k контекстов
+}
+
+service QnA {
+  rpc UploadDocument(UploadDocRequest) returns (UploadDocResponse);
+  rpc Query(QueryRequest) returns (QueryResponse);
+}
