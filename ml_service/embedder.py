@@ -51,9 +51,8 @@ class Embedder:
         while start < len(text):
             end = start + chunk_size
             
-            # Try to break at sentence boundary
+
             if end < len(text):
-                # Look for period, question mark, or exclamation within last 100 chars
                 chunk_text = text[start:end]
                 last_period = max(
                     chunk_text.rfind('. '),

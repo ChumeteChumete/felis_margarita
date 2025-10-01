@@ -2,7 +2,6 @@ import grpc
 import sys
 import os
 
-# Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
 
 import fm_pb2
@@ -14,7 +13,6 @@ def check_health():
         channel = grpc.insecure_channel('localhost:50051')
         stub = fm_pb2_grpc.QnAStub(channel)
         
-        # Try a simple query
         request = fm_pb2.QueryRequest(
             user_id="health_check",
             question="test",
