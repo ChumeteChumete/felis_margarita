@@ -1,44 +1,54 @@
-.PHONY: check-env proto-gen up migrate
+.PHONY: proto up up-d down logs logs-bot logs-ml migrate env-init clean rebuild test
 
-# Проверка .env файла (Windows-совместимая)
-check-env:
-	@if not exist .env ( \
-		echo Error: .env file not found & \
-		echo Please copy .env.example to .env and fill in your values & \
-		echo Example: copy .env.example .env & \
-		exit 1 \
-	)
-	@findstr "TELEGRAM_TOKEN" .env > nul || ( \
-		echo Error: TELEGRAM_TOKEN not found in .env file & \
-		echo Please edit .env file and add your actual Telegram token & \
-		echo Get token from @BotFather & \
-		exit 1 \
-	)
+# Generate proto files
+proto:
+	@if not exist "pkg\proto" mkdir pkg\proto
+	protoc --go_out=./pkg/proto --go-grpc_out=./pkg/proto --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative -I proto proto/fm.proto
+	python -m grpc_tools.protoc -I proto --python_out=ml_service --grpc_python_out=ml_service proto/fm.proto
 
-# Генерация proto файлов
-proto-gen:
-	protoc --go_out=. --go-grpc_out=. -I proto proto/qna.proto
-	python -m grpc_tools.protoc -I proto --python_out=ml_service --grpc_python_out=ml_service proto/qna.proto
+# Start all services
+up:
+	@if not exist .env (echo Error: .env file not found. Run 'make env-init' first && exit /b 1)
+	docker compose up --build
 
-# Запуск с проверкой .env файла
-up: check-env
-	docker-compose up --build
+# Start in detached mode
+up-d:
+	@if not exist .env (echo Error: .env file not found. Run 'make env-init' first && exit /b 1)
+	docker compose up --build -d
 
-# Создание .env файла из примера
-env-init:
-	copy .env.example .env
-	@echo Now edit .env file and add your Telegram token
-
-# Запуск без проверки (если нужно)
-up-force:
-	docker-compose up --build
-
-# Миграции БД
-migrate:
-	psql postgresql://app:pass@localhost:5432/appdb -f migrations/0001_init.sql
-
+# Stop all services
 down:
-	docker-compose down
+	docker compose down
 
+# Stop and remove volumes
+clean:
+	docker compose down -v
+
+# Rebuild without cache
+rebuild:
+	docker compose build --no-cache
+	docker compose up
+
+# View all logs
 logs:
-	docker-compose logs -f
+	docker compose logs -f
+
+# View bot logs
+logs-bot:
+	docker compose logs -f bot
+
+# View ML service logs
+logs-ml:
+	docker compose logs -f ml-service
+
+# Run database migrations manually
+migrate:
+	docker compose exec postgres psql -U app -d appdb -f /migrations/0001_init.sql
+
+# Run tests
+test:
+	go test -v ./...
+
+# Create .env from example
+env-init:
+	@if exist .env (echo .env already exists) else (copy .env.example .env && echo Edit .env and add your TELEGRAM_TOKEN)

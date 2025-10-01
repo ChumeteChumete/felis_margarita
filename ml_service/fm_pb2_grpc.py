@@ -35,12 +35,12 @@ class QnAStub(object):
             channel: A grpc.Channel.
         """
         self.UploadDocument = channel.unary_unary(
-                '/qna.QnA/UploadDocument',
+                '/fm.QnA/UploadDocument',
                 request_serializer=fm__pb2.UploadDocRequest.SerializeToString,
                 response_deserializer=fm__pb2.UploadDocResponse.FromString,
                 _registered_method=True)
         self.Query = channel.unary_unary(
-                '/qna.QnA/Query',
+                '/fm.QnA/Query',
                 request_serializer=fm__pb2.QueryRequest.SerializeToString,
                 response_deserializer=fm__pb2.QueryResponse.FromString,
                 _registered_method=True)
@@ -76,9 +76,9 @@ def add_QnAServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'qna.QnA', rpc_method_handlers)
+            'fm.QnA', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('qna.QnA', rpc_method_handlers)
+    server.add_registered_method_handlers('fm.QnA', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -99,7 +99,7 @@ class QnA(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/qna.QnA/UploadDocument',
+            '/fm.QnA/UploadDocument',
             fm__pb2.UploadDocRequest.SerializeToString,
             fm__pb2.UploadDocResponse.FromString,
             options,
@@ -126,7 +126,7 @@ class QnA(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/qna.QnA/Query',
+            '/fm.QnA/Query',
             fm__pb2.QueryRequest.SerializeToString,
             fm__pb2.QueryResponse.FromString,
             options,

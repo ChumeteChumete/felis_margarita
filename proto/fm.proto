@@ -1,5 +1,5 @@
 syntax = "proto3";
-package qna;
+package fm;
 option go_package = "/proto;proto";
 
 message UploadDocRequest {

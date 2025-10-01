@@ -1,39 +1,58 @@
 services:
   postgres:
-    image: postgres:15
+    image: pgvector/pgvector:pg15
     environment:
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: appdb
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pass}
+      POSTGRES_DB: ${POSTGRES_DB:-appdb}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./migrations:/migrations
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U app"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   redis:
-    image: redis:7
+    image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   ml-service:
     build:
-      context: ./ml_service
+      context: .              
+      dockerfile: ./ml_service/Dockerfile
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     ports:
-      - "50051:50051" # gRPC
+      - "${GRPC_PORT:-50051}:50051"
+    volumes:
+      - ./migrations:/migrations
     environment:
-      - DATABASE_DSN=postgres://app:pass@postgres:5432/appdb?sslmode=disable
+      - DATABASE_DSN=postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-pass}@postgres:5432/${POSTGRES_DB:-appdb}
+      - GRPC_PORT=50051
+
   bot:
     build:
       context: .
       dockerfile: ./cmd/bot/Dockerfile
     depends_on:
-      - ml-service
-      - postgres
-    env_file: .env
+      ml-service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
       - GRPC_ADDR=ml-service:50051
+
 volumes:
   pgdata:

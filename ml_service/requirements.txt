@@ -1,8 +1,9 @@
-grpcio
-grpcio-tools
+grpcio==1.68.1
+grpcio-tools==1.68.1
 protobuf
-sentence-transformers
-transformers
-torch
-psycopg2-binary
-pgvector
+sentence-transformers==3.3.1
+transformers==4.47.1
+torch==2.8.0
+psycopg2-binary==2.9.10
+pgvector==0.3.6
+numpy==1.26.4
