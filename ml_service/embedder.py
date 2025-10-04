@@ -63,7 +63,7 @@ class Embedder:
                     end = start + last_period + 1
             
             chunks.append(text[start:end].strip())
-            start = end - overlap
+            start = max(end - overlap, start + 1)
         
         return chunks
 
