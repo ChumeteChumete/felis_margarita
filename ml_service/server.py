@@ -42,6 +42,18 @@ class QnAService(fm_pb2_grpc.QnAServicer):
                     title=request.title,
                     filename=request.filename,
                 )
+
+                from embedder import Embedder
+                embedder = Embedder()
+                chunks = embedder.chunk_text(text, chunk_size=500, overlap=50)
+                logger.info(f"Created {len(chunks)} chunks")
+
+                chunk_data = []
+                for i, chunk_text in enumerate(chunks):
+                    chunk_id = f"{doc_id}_chunk_{i}"
+                    chunk_data.append((chunk_id, doc_id, chunk_text, None))
+
+                self.db.save_chunks(chunk_data)
                 
             return fm_pb2.UploadDocResponse(doc_id=doc_id, status="ok")
         except Exception as e:

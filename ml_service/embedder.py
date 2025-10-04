@@ -49,9 +49,8 @@ class Embedder:
         start = 0
         
         while start < len(text):
-            end = start + chunk_size
+            end = min(start + chunk_size, len(text))
             
-
             if end < len(text):
                 chunk_text = text[start:end]
                 last_period = max(
@@ -63,8 +62,11 @@ class Embedder:
                     end = start + last_period + 1
             
             chunks.append(text[start:end].strip())
-            start = max(end - overlap, start + 1)
-        
+            
+            if end >= len(text):
+                break
+            start = end - overlap
+                
         return chunks
 
     def embed_document(self, text):
