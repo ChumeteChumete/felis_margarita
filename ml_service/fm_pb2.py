@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x08\x66m.proto\x12\x02\x66m\"f\n\x10UploadDocRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\x12\x12\n\nfile_bytes\x18\x04 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x05 \x01(\t\"3\n\x11UploadDocResponse\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\"@\n\x0cQueryRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08question\x18\x02 \x01(\t\x12\r\n\x05top_k\x18\x03 \x01(\x05\"6\n\x05\x43hunk\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\r\n\x05score\x18\x03 \x01(\x02\"<\n\rQueryResponse\x12\x0e\n\x06\x61nswer\x18\x01 \x01(\t\x12\x1b\n\x08\x63ontexts\x18\x02 \x03(\x0b\x32\t.fm.Chunk2r\n\x03QnA\x12=\n\x0eUploadDocument\x12\x14.fm.UploadDocRequest\x1a\x15.fm.UploadDocResponse\x12,\n\x05Query\x12\x10.fm.QueryRequest\x1a\x11.fm.QueryResponseB\x0eZ\x0c/proto;protob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x08\x66m.proto\x12\x02\x66m\"f\n\x10UploadDocRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0c\n\x04text\x18\x03 \x01(\t\x12\x12\n\nfile_bytes\x18\x04 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x05 \x01(\t\"3\n\x11UploadDocResponse\x12\x0e\n\x06\x64oc_id\x18\x01 \x01(\t\x12\x0e\n\x06status\x18\x02 \x01(\t\"@\n\x0cQueryRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x10\n\x08question\x18\x02 \x01(\t\x12\r\n\x05top_k\x18\x03 \x01(\x05\"6\n\x05\x43hunk\x12\x10\n\x08\x63hunk_id\x18\x01 \x01(\t\x12\x0c\n\x04text\x18\x02 \x01(\t\x12\r\n\x05score\x18\x03 \x01(\x02\"<\n\rQueryResponse\x12\x0e\n\x06\x61nswer\x18\x01 \x01(\t\x12\x1b\n\x08\x63ontexts\x18\x02 \x03(\x0b\x32\t.fm.Chunk2\xa6\x01\n\x03QnA\x12=\n\x0eUploadDocument\x12\x14.fm.UploadDocRequest\x1a\x15.fm.UploadDocResponse\x12,\n\x05Query\x12\x10.fm.QueryRequest\x1a\x11.fm.QueryResponse\x12\x32\n\x0b\x44irectQuery\x12\x10.fm.QueryRequest\x1a\x11.fm.QueryResponseB\x0eZ\x0c/proto;protob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -42,6 +42,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_CHUNK']._serialized_end=293
   _globals['_QUERYRESPONSE']._serialized_start=295
   _globals['_QUERYRESPONSE']._serialized_end=355
-  _globals['_QNA']._serialized_start=357
-  _globals['_QNA']._serialized_end=471
+  _globals['_QNA']._serialized_start=358
+  _globals['_QNA']._serialized_end=524
 # @@protoc_insertion_point(module_scope)

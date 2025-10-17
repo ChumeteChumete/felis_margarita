@@ -37,4 +37,5 @@ message QueryResponse {
 service QnA {
   rpc UploadDocument(UploadDocRequest) returns (UploadDocResponse);
   rpc Query(QueryRequest) returns (QueryResponse);
+  rpc DirectQuery(QueryRequest) returns (QueryResponse);
 }

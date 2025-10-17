@@ -45,18 +45,18 @@ class Database:
             )
             self.conn.commit()
 
-    def search_chunks(self, embedding, top_k=5):
-        """
-        Vector similarity search using cosine distance
-        """
+    def search_chunks(self, user_id, embedding, top_k=5):
+        """Search only user's own chunks"""
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT id, chunk_text, 1 - (embedding <=> %s::vector) as score
-                FROM chunks
-                ORDER BY embedding <=> %s::vector
+                SELECT c.id, c.chunk_text, 1 - (c.embedding <=> %s::vector) as score
+                FROM chunks c
+                JOIN documents d ON c.document_id = d.id
+                WHERE d.user_id = %s
+                ORDER BY c.embedding <=> %s::vector
                 LIMIT %s
                 """,
-                (embedding, embedding, top_k)
+                (embedding, user_id, embedding, top_k)
             )
             return cur.fetchall()

@@ -6,12 +6,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"Felis_Margarita/internal/bot"
 	pb "Felis_Margarita/pkg/proto"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 )
 
 func main() {
@@ -22,12 +24,13 @@ func main() {
 
 	grpcAddr := os.Getenv("GRPC_ADDR")
 	if grpcAddr == "" {
-		grpcAddr = "localhost:50051"
+		grpcAddr = "ml-service:50051"
 	}
 
 	conn, err := grpc.NewClient(
 		grpcAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(grpc_retry.UnaryClientInterceptor(grpc_retry.WithMax(3), grpc_retry.WithBackoff(grpc_retry.BackoffExponential(100*time.Millisecond)))),
 	)
 	if err != nil {
 		log.Fatalf("grpc connection failed: %v", err)
@@ -38,7 +41,7 @@ func main() {
 	service := bot.NewService(mlClient)
 	handler := bot.NewHandler(token, service)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
 	// graceful shutdown

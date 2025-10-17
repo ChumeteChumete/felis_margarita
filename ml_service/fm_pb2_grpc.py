@@ -44,6 +44,11 @@ class QnAStub(object):
                 request_serializer=fm__pb2.QueryRequest.SerializeToString,
                 response_deserializer=fm__pb2.QueryResponse.FromString,
                 _registered_method=True)
+        self.DirectQuery = channel.unary_unary(
+                '/fm.QnA/DirectQuery',
+                request_serializer=fm__pb2.QueryRequest.SerializeToString,
+                response_deserializer=fm__pb2.QueryResponse.FromString,
+                _registered_method=True)
 
 
 class QnAServicer(object):
@@ -61,6 +66,12 @@ class QnAServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def DirectQuery(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_QnAServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -71,6 +82,11 @@ def add_QnAServicer_to_server(servicer, server):
             ),
             'Query': grpc.unary_unary_rpc_method_handler(
                     servicer.Query,
+                    request_deserializer=fm__pb2.QueryRequest.FromString,
+                    response_serializer=fm__pb2.QueryResponse.SerializeToString,
+            ),
+            'DirectQuery': grpc.unary_unary_rpc_method_handler(
+                    servicer.DirectQuery,
                     request_deserializer=fm__pb2.QueryRequest.FromString,
                     response_serializer=fm__pb2.QueryResponse.SerializeToString,
             ),
@@ -127,6 +143,33 @@ class QnA(object):
             request,
             target,
             '/fm.QnA/Query',
+            fm__pb2.QueryRequest.SerializeToString,
+            fm__pb2.QueryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def DirectQuery(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/fm.QnA/DirectQuery',
             fm__pb2.QueryRequest.SerializeToString,
             fm__pb2.QueryResponse.FromString,
             options,

@@ -2,7 +2,7 @@ package bot
 
 import (
 	"context"
-	"time"
+	"fmt"
 
 	pb "Felis_Margarita/pkg/proto"
 )
@@ -43,9 +43,6 @@ func (s *Service) UploadDocument(ctx context.Context, userID, filename string, d
 }
 
 func (s *Service) Query(ctx context.Context, userID, question string, topK int32) (*QueryResponse, error) {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
 	req := &pb.QueryRequest{
 		UserId:   userID,
 		Question: question,
@@ -54,7 +51,7 @@ func (s *Service) Query(ctx context.Context, userID, question string, topK int32
 
 	resp, err := s.mlClient.Query(ctx, req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("grpc query failed: %w", err)
 	}
 
 	contexts := make([]Context, len(resp.Contexts))

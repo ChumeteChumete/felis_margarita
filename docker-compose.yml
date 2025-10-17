@@ -1,3 +1,7 @@
+networks:
+  fm-network:
+    driver: bridge
+
 services:
   postgres:
     image: pgvector/pgvector:pg15
@@ -15,6 +19,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - fm-network
 
   redis:
     image: redis:7-alpine
@@ -25,14 +31,28 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - fm-network
+  
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama_data:/root/.ollama
+    command: serve
+    networks:
+      - fm-network
 
   ml-service:
     build:
-      context: .              
+      context: .
       dockerfile: ./ml_service/Dockerfile
     depends_on:
       postgres:
         condition: service_healthy
+      ollama:
+        condition: service_started
     ports:
       - "${GRPC_PORT:-50051}:50051"
     volumes:
@@ -40,6 +60,8 @@ services:
     environment:
       - DATABASE_DSN=postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-pass}@postgres:5432/${POSTGRES_DB:-appdb}
       - GRPC_PORT=50051
+    networks:
+      - fm-network
 
   bot:
     build:
@@ -53,6 +75,8 @@ services:
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
       - GRPC_ADDR=ml-service:50051
+    networks:
+      - fm-network
 
 volumes:
   pgdata:
