@@ -3,17 +3,17 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /app
 
-# Ставим только то, что нужно для сборки зависимостей
+# Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
     build-essential \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Копируем requirements отдельно
 COPY ml_service/requirements.txt .
+
 RUN pip install --user --no-cache-dir -r requirements.txt
 
-# Копируем proto и генерируем gRPC код
+# Генерация gRPC кода
 COPY proto/fm.proto ./proto/
 RUN python -m grpc_tools.protoc \
     --proto_path=proto \
@@ -27,21 +27,19 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Копируем зависимости из builder
-COPY --from=builder /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
-
-# Устанавливаем только postgres client (для healthcheck и миграций, если нужен)
+# Системные зависимости
 RUN apt-get update && apt-get install -y \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
-# Копируем код приложения
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
 COPY ml_service/*.py ./
 COPY ml_service/entrypoint.sh ./
 RUN chmod +x entrypoint.sh
 
-# Копируем сгенерированные grpc файлы из builder
+# gRPC-файлы
 COPY --from=builder /app/proto ./proto
 
 EXPOSE 50051

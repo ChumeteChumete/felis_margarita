@@ -40,6 +40,8 @@ services:
       - "11434:11434"
     volumes:
       - ./ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_DEBUG=1
     command: serve
     networks:
       - fm-network
@@ -58,6 +60,7 @@ services:
     volumes:
       - ./migrations:/migrations
     environment:
+      - ZHIPU_API_KEY=${ZHIPU_API_KEY}
       - DATABASE_DSN=postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-pass}@postgres:5432/${POSTGRES_DB:-appdb}
       - GRPC_PORT=50051
     networks:

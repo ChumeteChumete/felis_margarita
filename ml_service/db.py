@@ -60,3 +60,35 @@ class Database:
                 (embedding, user_id, embedding, top_k)
             )
             return cur.fetchall()
+    def list_user_documents(self, user_id):
+        """Возвращает список названий документов пользователя"""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT title
+                FROM documents
+                WHERE user_id = %s
+                ORDER BY id DESC
+                """,
+                (user_id,)
+            )
+            return [row[0] for row in cur.fetchall()]
+
+    def clear_user_documents(self, user_id):
+        """Удаляет все документы и чанки пользователя"""
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                DELETE FROM chunks
+                WHERE document_id IN (
+                    SELECT id FROM documents WHERE user_id = %s
+                )
+                """,
+                (user_id,)
+            )
+            cur.execute(
+                "DELETE FROM documents WHERE user_id = %s",
+                (user_id,)
+            )
+            self.conn.commit()
+            logger.info(f"Deleted all documents for user {user_id}")

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	pb "Felis_Margarita/pkg/proto"
+	pb "Felis_Margarita/pkg"
 )
 
 type Service struct {

@@ -21,8 +21,20 @@ class QnAService(fm_pb2_grpc.QnAServicer):
         self.db = Database(dsn) if dsn else None
         self.extractor = TextExtractor()
         self.llm = LLMClient()
+        self.embedder = Embedder()
         if not self.db:
             logger.warning("DATABASE_DSN not set, running without DB")
+    
+    def SetMode(self, request, context):
+        mode = request.mode
+        try:
+            self.llm.set_mode(mode)
+            return fm_pb2.SetModeResponse(status="ok")
+        except Exception as e:
+            logger.error(f"SetMode failed: {e}")
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details(str(e))
+            return fm_pb2.SetModeResponse(status="error")
 
     def UploadDocument(self, request, context):
         try:
@@ -46,12 +58,10 @@ class QnAService(fm_pb2_grpc.QnAServicer):
                     filename=request.filename,
                 )
 
-                from embedder import Embedder
-                embedder = Embedder()
-                chunks = embedder.chunk_text(text, chunk_size=800, overlap=100)
+                chunks = self.embedder.chunk_text(text, chunk_size=800, overlap=100)
                 logger.info(f"Created {len(chunks)} chunks")
 
-                embeddings = embedder.embed_batch(chunks)
+                embeddings = self.embedder.embed_batch(chunks)
                 logger.info(f"Generated embeddings for {len(chunks)} chunks")
 
                 chunk_data = []
@@ -82,8 +92,7 @@ class QnAService(fm_pb2_grpc.QnAServicer):
             contexts = []
 
             if self.db:
-                embedder = Embedder()
-                question_embedding = embedder.embed_text(question)
+                question_embedding = self.embedder.embed_text(question)
                 results = self.db.search_chunks(request.user_id, question_embedding.tolist(), top_k=request.top_k or 5)
                 logger.info(f"Search results: {len(results)} chunks")
 
@@ -116,6 +125,47 @@ class QnAService(fm_pb2_grpc.QnAServicer):
             context.set_details(str(e))
             return fm_pb2.QueryResponse(answer="", contexts=[])
 
+    def DirectQuery(self, request, context):
+        try:
+            question = request.question.strip()
+            if not question:
+                context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+                context.set_details("Question is empty")
+                return fm_pb2.QueryResponse(answer="", contexts=[])
+
+            logger.info(f"Direct query: {question}")
+            answer = self.llm.generate_answer(question, [])
+            logger.info(f"Direct answer: {len(answer)} chars")
+            return fm_pb2.QueryResponse(answer=answer, contexts=[])
+        except Exception as e:
+            logger.exception("Direct query failed")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return fm_pb2.QueryResponse(answer="", contexts=[])
+
+    def ListDocuments(self, request, context):
+        try:
+            if not self.db:
+                return fm_pb2.ListDocsResponse(titles=[])
+            titles = self.db.list_user_documents(request.user_id)
+            return fm_pb2.ListDocsResponse(titles=titles)
+        except Exception as e:
+            logger.exception("ListDocuments failed")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return fm_pb2.ListDocsResponse(titles=[])
+
+    def ClearDocuments(self, request, context):
+        try:
+            if not self.db:
+                return fm_pb2.ClearDocsResponse(success=True)
+            self.db.clear_user_documents(request.user_id)
+            return fm_pb2.ClearDocsResponse(success=True)
+        except Exception as e:
+            logger.exception("ClearDocuments failed")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return fm_pb2.ClearDocsResponse(success=False)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=8))
@@ -130,19 +180,3 @@ def serve():
 
 if __name__ == "__main__":
     serve()
-
-def DirectQuery(self, request, context):
-    """Answer without document context"""
-    try:
-        question = request.question.strip()
-        logger.info(f"Direct query: {question}")
-        
-        # Пустой контекст = общий режим
-        answer = self.llm.generate_answer(question, [])
-        logger.info(f"Direct answer: {len(answer)} chars")
-        
-        return fm_pb2.QueryResponse(answer=answer, contexts=[])
-    except Exception as e:
-        logger.exception("Direct query failed")
-        context.set_code(grpc.StatusCode.INTERNAL)
-        return fm_pb2.QueryResponse(answer="", contexts=[])

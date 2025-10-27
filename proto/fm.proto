@@ -2,12 +2,18 @@ syntax = "proto3";
 package fm;
 option go_package = "/proto;proto";
 
+message SetModeRequest {
+  string mode = 1; // "online" or "offline"
+}
+
+message SetModeResponse {
+  string status = 1;
+}
+
 message UploadDocRequest {
   string user_id = 1;
   string title = 2;
-  // Если клиент присылает текст — используем text.
   string text = 3;
-  // Если присылает файл — используем file_bytes.
   bytes file_bytes = 4;
   string filename = 5;
 }
@@ -15,6 +21,22 @@ message UploadDocRequest {
 message UploadDocResponse {
   string doc_id = 1;
   string status = 2;
+}
+
+message ListDocsRequest {
+  string user_id = 1;
+}
+
+message ListDocsResponse {
+  repeated string titles = 1;
+}
+
+message ClearDocsRequest {
+  string user_id = 1;
+}
+
+message ClearDocsResponse {
+  bool success = 1;
 }
 
 message QueryRequest {
@@ -35,7 +57,10 @@ message QueryResponse {
 }
 
 service QnA {
+  rpc SetMode(SetModeRequest) returns (SetModeResponse);
   rpc UploadDocument(UploadDocRequest) returns (UploadDocResponse);
+  rpc ListDocuments(ListDocsRequest) returns (ListDocsResponse);
+  rpc ClearDocuments(ClearDocsRequest) returns (ClearDocsResponse);
   rpc Query(QueryRequest) returns (QueryResponse);
   rpc DirectQuery(QueryRequest) returns (QueryResponse);
 }

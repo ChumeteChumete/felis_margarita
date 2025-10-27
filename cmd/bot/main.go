@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"Felis_Margarita/internal/bot"
-	pb "Felis_Margarita/pkg/proto"
+	pb "Felis_Margarita/pkg"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

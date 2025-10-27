@@ -34,10 +34,25 @@ class QnAStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.SetMode = channel.unary_unary(
+                '/fm.QnA/SetMode',
+                request_serializer=fm__pb2.SetModeRequest.SerializeToString,
+                response_deserializer=fm__pb2.SetModeResponse.FromString,
+                _registered_method=True)
         self.UploadDocument = channel.unary_unary(
                 '/fm.QnA/UploadDocument',
                 request_serializer=fm__pb2.UploadDocRequest.SerializeToString,
                 response_deserializer=fm__pb2.UploadDocResponse.FromString,
+                _registered_method=True)
+        self.ListDocuments = channel.unary_unary(
+                '/fm.QnA/ListDocuments',
+                request_serializer=fm__pb2.ListDocsRequest.SerializeToString,
+                response_deserializer=fm__pb2.ListDocsResponse.FromString,
+                _registered_method=True)
+        self.ClearDocuments = channel.unary_unary(
+                '/fm.QnA/ClearDocuments',
+                request_serializer=fm__pb2.ClearDocsRequest.SerializeToString,
+                response_deserializer=fm__pb2.ClearDocsResponse.FromString,
                 _registered_method=True)
         self.Query = channel.unary_unary(
                 '/fm.QnA/Query',
@@ -54,7 +69,25 @@ class QnAStub(object):
 class QnAServicer(object):
     """Missing associated documentation comment in .proto file."""
 
+    def SetMode(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def UploadDocument(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListDocuments(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ClearDocuments(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -75,10 +108,25 @@ class QnAServicer(object):
 
 def add_QnAServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'SetMode': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetMode,
+                    request_deserializer=fm__pb2.SetModeRequest.FromString,
+                    response_serializer=fm__pb2.SetModeResponse.SerializeToString,
+            ),
             'UploadDocument': grpc.unary_unary_rpc_method_handler(
                     servicer.UploadDocument,
                     request_deserializer=fm__pb2.UploadDocRequest.FromString,
                     response_serializer=fm__pb2.UploadDocResponse.SerializeToString,
+            ),
+            'ListDocuments': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListDocuments,
+                    request_deserializer=fm__pb2.ListDocsRequest.FromString,
+                    response_serializer=fm__pb2.ListDocsResponse.SerializeToString,
+            ),
+            'ClearDocuments': grpc.unary_unary_rpc_method_handler(
+                    servicer.ClearDocuments,
+                    request_deserializer=fm__pb2.ClearDocsRequest.FromString,
+                    response_serializer=fm__pb2.ClearDocsResponse.SerializeToString,
             ),
             'Query': grpc.unary_unary_rpc_method_handler(
                     servicer.Query,
@@ -102,6 +150,33 @@ class QnA(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
+    def SetMode(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/fm.QnA/SetMode',
+            fm__pb2.SetModeRequest.SerializeToString,
+            fm__pb2.SetModeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def UploadDocument(request,
             target,
             options=(),
@@ -118,6 +193,60 @@ class QnA(object):
             '/fm.QnA/UploadDocument',
             fm__pb2.UploadDocRequest.SerializeToString,
             fm__pb2.UploadDocResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListDocuments(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/fm.QnA/ListDocuments',
+            fm__pb2.ListDocsRequest.SerializeToString,
+            fm__pb2.ListDocsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ClearDocuments(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/fm.QnA/ClearDocuments',
+            fm__pb2.ClearDocsRequest.SerializeToString,
+            fm__pb2.ClearDocsResponse.FromString,
             options,
             channel_credentials,
             insecure,
