@@ -2,6 +2,8 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import logging
 
+from redis_cache import RedisCache
+
 logger = logging.getLogger(__name__)
 
 class Embedder:
@@ -13,14 +15,18 @@ class Embedder:
         logger.info(f"Loading embedding model: {model_name}")
         self.model = SentenceTransformer(model_name)
         self.dimension = 384
+        self.cache = RedisCache()
         logger.info("Model loaded successfully")
 
     def embed_text(self, text):
-        """
-        Generate embedding for a single text
-        Returns: numpy array of shape (384,)
-        """
+        cached = self.cache.get_embedding(text)
+        if cached is not None:
+            logger.debug("Embedding from cache")
+            return cached
+        
         embedding = self.model.encode(text, convert_to_numpy=True)
+        
+        self.cache.set_embedding(text, embedding)
         return embedding
 
     def embed_batch(self, texts):

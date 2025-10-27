@@ -225,7 +225,7 @@ func (h *Handler) handleQuestion(ctx context.Context, userID string, chatID int6
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 	defer cancel()
 
-	resp, err := h.service.Query(ctx, userID, question, 3)
+	resp, err := h.service.Query(ctx, userID, question, 2)
 	if err != nil {
 		log.Printf("Query error for user %s: %v", userID, err)
 		// Редактируем на ошибку

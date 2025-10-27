@@ -58,7 +58,7 @@ class QnAService(fm_pb2_grpc.QnAServicer):
                     filename=request.filename,
                 )
 
-                chunks = self.embedder.chunk_text(text, chunk_size=800, overlap=100)
+                chunks = self.embedder.chunk_text(text, chunk_size=400, overlap=50)
                 logger.info(f"Created {len(chunks)} chunks")
 
                 embeddings = self.embedder.embed_batch(chunks)
